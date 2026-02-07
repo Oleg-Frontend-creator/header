@@ -1,0 +1,434 @@
+@font-face {
+    font-family: 'Nunito';
+    src: url('assets/fonts/Nunito-Light.woff2') format('woff2');
+    font-weight: 300;
+    font-style: normal;
+    font-display: swap;
+}
+
+html, body, ul, li {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: #4A474733;
+}
+
+.common-link {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 300;
+    font-size: 16px;
+    color: #4A4747;
+    text-decoration: none;
+    transition: 0.3s color ease;
+
+    svg path {
+        transition: fill 0.3s ease;
+    }
+
+    &:hover, &.active {
+        color: #B11016;
+
+        svg path {
+            fill: #B11016;
+        }
+    }
+}
+
+/*input из меню*/
+.search-label {
+    position: relative;
+
+    svg {
+        position: absolute;
+        top: calc(50% - 9px);
+        left: 12px;
+    }
+
+    .search-input {
+        width: 320px;
+        box-sizing: border-box;
+        padding: 6px 10px 6px 38px;
+        border-radius: 60px;
+        border: 1px solid #CDCDCD;
+        background-color: #FFFFFF;
+        line-height: 22px;
+        outline: none;
+
+        &::placeholder {
+            color: #ADADAD;
+        }
+    }
+}
+
+/*верхний заголовок*/
+.header {
+    background-color: #E9E9E9;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 300;
+    font-size: 16px;
+    color: #4A4747;
+    position: sticky;
+    top: 0;
+    z-index: 3;
+
+    .container {
+        max-width: 1400px;
+        padding: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        .menu {
+            display: flex;
+            gap: 67px;
+            align-items: center;
+
+            .logo {
+                height: 50px;
+            }
+
+            .menu-items {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 20px;
+                list-style: none;
+            }
+        }
+    }
+}
+
+/*бургерное меню*/
+.burger {
+    display: none;
+    width: 48px;
+    height: 48px;
+    box-sizing: border-box;
+    border: 1px solid #CDCDCD;
+    background-color: #FFFFFF;
+    border-radius: 5px;
+    cursor: pointer;
+    flex-direction: column;
+    justify-content: center;
+    padding-left: 8px;
+    gap: 5px;
+    overflow: hidden;
+    position: fixed;
+    top: 16px;
+    right: 10px;
+    z-index: 4;
+
+    .line {
+        display: block;
+        height: 3px;
+        width: 30px;
+        background: #B32121;
+        border-radius: 2px;
+        opacity: 1;
+        transition: all .3s ease;
+
+        &.line-2 {
+            width: 25px;
+        }
+    }
+
+    &.open {
+        padding-top: 5px;
+        padding-left: 6px;
+
+        .line {
+            &.line-1 {
+                transform: translateY(5px) rotate(45deg);
+                width: 34px;
+            }
+
+            &.line-2 {
+                transform: translateX(130%);
+                opacity: 0;
+            }
+
+            &.line-3 {
+                transform: translateY(-11px) rotate(-45deg);
+                width: 34px;
+            }
+        }
+    }
+}
+
+/*слой overlay*/
+.overlay {
+    position: fixed;
+    z-index: 2;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: none;
+    transition: 0.3s background-color ease;
+
+    &.open {
+        display: block;
+        background-color: rgba(0, 0, 0, 0.2);
+    }
+}
+
+/*область, которая выдвигается слева на декстопе и справа на мобильных устройствах*/
+.submenu-layout {
+    background-color: #E9E9E9;
+    padding-top: 20px;
+    height: 100svh;
+    width: 340px;
+    box-sizing: border-box;
+    position: fixed;
+    z-index: 3;
+    top: 90px;
+    bottom: 0;
+    transform: translateX(-100%);
+    opacity: 0;
+    transition: all 0.3s ease;
+    display: flex;
+
+    &.open {
+        transform: translateX(0);
+        opacity: 1;
+
+        &.two-menus {
+            width: 680px;
+
+            .first-submenu {
+                border-right: 1px solid #D2D2D2;
+            }
+        }
+    }
+
+    .header-mobile-menu {
+        display: none;
+        height: auto;
+        padding-top: 80px;
+
+        &.open {
+            display: block;
+        }
+
+        .submenu-item:nth-child(1) {
+            padding-top: 20px;
+            border-top: 1px solid #D2D2D2;
+        }
+    }
+
+    .submenu-items {
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+
+        .submenu-item {
+            opacity: 0;
+            transform: translateY(-20px);
+            animation: dropIn .3s forwards;
+
+            &.main-item {
+                padding-bottom: 20px;
+                border-bottom: 1px solid #D2D2D2;
+            }
+
+            &:nth-child(1) {
+                animation-delay: .05s;
+            }
+
+            &:nth-child(2) {
+                animation-delay: .1s;
+            }
+
+            &:nth-child(3) {
+                animation-delay: .15s;
+            }
+
+            &:nth-child(4) {
+                animation-delay: .2s;
+            }
+
+            &:nth-child(5) {
+                animation-delay: .25s;
+            }
+
+            &:nth-child(6) {
+                animation-delay: .3s;
+            }
+
+            &:nth-child(7) {
+                animation-delay: .35s;
+            }
+
+            .common-link {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+        }
+    }
+
+    nav {
+        width: 340px;
+        padding: 20px;
+        box-sizing: border-box;
+
+        &.first-submenu {
+            border-right: 1px solid transparent;
+            display: none;
+            flex: 0 0 340px;
+            transition: all 0.3s ease;
+
+            &.research-submenu {
+                display: none;
+
+                &.open {
+                    display: block;
+                }
+
+                .menu-items .menu-item:first-child {
+                    padding-bottom: 0;
+                    border-bottom: none;
+                }
+            }
+
+            &.catalog-submenu {
+                display: none;
+
+                &.open {
+                    display: block;
+                }
+            }
+        }
+
+        &.second-submenu {
+            transform: translateX(-340px);
+            opacity: 0;
+
+            .submenu-items {
+                display: none;
+            }
+
+            &.open {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .back-link {
+            display: none;
+            padding-bottom: 30px;
+
+            .common-link {
+                display: flex;
+                align-items: center;
+                gap: 13px;
+            }
+        }
+    }
+
+    .search-label {
+        display: none;
+    }
+}
+
+/*анимация выпадающих списков при загрузке меню в боковой области*/
+@keyframes dropIn {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 1150px) {
+    .search-label .search-input {
+        width: unset;
+    }
+}
+
+@media (max-width: 1030px) {
+    .header .container .menu {
+        gap: 30px;
+    }
+}
+
+@media (max-width: 996px) {
+    .header {
+        transform: translateY(0);
+        opacity: 1;
+        transition: all .3s ease;
+
+        &.closed {
+            transform: translateY(-100%);
+            opacity: 0;
+        }
+
+        .container {
+            padding: 16px 10px;
+
+            .menu .menu-items {
+                display: none;
+            }
+
+            .search-label {
+                display: none;
+            }
+        }
+    }
+
+    .burger {
+        display: flex;
+    }
+
+    .submenu-layout {
+        transform: translateX(100%);
+        top: 0;
+        right: 0;
+        left: unset;
+        padding-top: 0;
+        flex-direction: column;
+        justify-content: space-between;
+
+        &.open {
+            transform: translateX(0);
+        }
+
+        nav {
+            .back-link {
+                display: block;
+            }
+        }
+
+        .search-label {
+            display: block;
+            padding: 0 20px 20px 20px;
+            width: 100%;
+            box-sizing: border-box;
+
+            svg {
+                left: 32px;
+                top: calc(50% - 19px);
+            }
+
+            .search-input {
+                width: 100%;
+            }
+        }
+    }
+}
+
+@media (max-width: 500px) {
+    .submenu-layout {
+        width: 320px;
+
+        nav {
+            width: 100%;
+
+            .first-submenu {
+                flex: unset;
+            }
+        }
+    }
+}
