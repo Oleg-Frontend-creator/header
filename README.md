@@ -83,9 +83,33 @@ project/
 
 ## 🔧 Добавление/изменение пунктов
 
-### 1. Добавить пункт в главное меню (десктоп)
+### 1. Добавить пункт-ссылку в главное меню без бокового меню первого уровня
 
 **HTML:**
+
+В html-шаблоне (index.html) в ul.menu-items (который находится в header.header) добавляем пункт, вставив данную структуру:
+```html
+<li class="menu-item">
+    <a href="/new-link" class="common-link">
+        Новый раздел
+    </a>
+</li>
+```
+Одновременно с этим добавляем точно такой же пункт в nav.header-mobile-menu (который находится в aside.submenu-layout):
+```html
+<li class="menu-item">
+    <a href="/new-link" class="common-link">
+        Новый раздел
+    </a>
+</li>
+```
+Здесь /new-link - ссылка для перехода на другую страницу
+
+### 2. Добавить пункт-ссылку в главное меню и привязать к нему боковое меню первого уровня
+**HTML:**
+
+В html-шаблоне (index.html) в ul.menu-items (который находится в header.header и является главным меню на десктопной 
+версии) добавляем пункт, вставив данную структуру:
 ```html
 <li class="menu-item">
     <a href="javascript:void(0)" class="common-link" id="new-section-link">
@@ -93,12 +117,63 @@ project/
     </a>
 </li>
 ```
+Одновременно с этим добавляем точно такой же пункт в nav.header-mobile-menu (который находится в aside.submenu-layout и 
+является главным меню на мобильной версии):
+```html
+<li class="menu-item">
+    <a href="javascript:void(0)" class="common-link" id="new-section-link-1">
+        Новый раздел
+    </a>
+</li>
+```
+Здесь у ссылок добавляется id-элемента для дальнейшей привязки к ним события по открыванию бокового меню (id ссылок 
+стоит назвать по шаблону <название ссылки> и <название ссылки>-1), а в качестве href-атрибута - javascript:void(0).
+
+Создаем структуру бокового меню: 
+```html
+<nav class="first-submenu" id="new-submenu">
+    <div class="submenu-item back-link">
+        <a class="common-link" href="javascript:void(0)">
+            <svg xmlns="http://www.w3.org/2000/svg" width="5" height="8" viewBox="0 0 5 8" fill="none">
+                <path d="M4.34243 0.159112C4.13229 -0.0530373 3.79168 -0.0530373 3.58155 0.159112L0.1576 3.61591C-0.0525333 3.82806 -0.0525333 4.17194 0.1576 4.38409L3.58155 7.84089C3.79168 8.05304 4.13229 8.05304 4.34243 7.84089C4.55251 7.62873 4.55254 7.28484 4.34243 7.07271L1.29892 4L4.34243 0.927289C4.55254 0.715158 4.55251 0.371265 4.34243 0.159112Z" fill="#4A4747"/>
+            </svg>
+            <span>Назад</span>
+        </a>
+    </div>
+    <ul class="submenu-items">
+        <li class="submenu-item main-item">
+            <a class="common-link" href="/new-submenu-link-1">
+                <span>Новая главная ссылка</span>
+                <svg width="11" height="8" viewBox="0 0 11 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M6.46484 0.146447C6.66011 -0.0488155 6.97661 -0.0488155 7.17188 0.146447L10.3535 3.32809C10.5488 3.52335 10.5488 3.83986 10.3535 4.03512L7.17188 7.21676C6.97661 7.41202 6.66011 7.41202 6.46484 7.21676C6.26958 7.0215 6.26958 6.70499 6.46484 6.50973L8.79297 4.1816H0V3.1816H8.79297L6.46484 0.853478C6.26958 0.658216 6.26958 0.341709 6.46484 0.146447Z"
+                          fill="#4A4747"/>
+                </svg>
+            </a>
+        </li>
+        <li class="submenu-item">
+            <a class="common-link" href="/new-submenu-link-2" data-kptd="1">
+                <span>Последующая второстепенная ссылка 1</span>
+                <svg class="link-arrow" width="5" height="8" viewBox="0 0 5 8">
+                    <path d="M0.157573 0.159112C0.367706 -0.0530373 0.708317 -0.0530373 0.91845 0.159112L4.3424 3.61591C4.55253 3.82806 4.55253 4.17194 4.3424 4.38409L0.91845 7.84089C0.708317 8.05304 0.367706 8.05304 0.157573 7.84089C-0.0525063 7.62873 -0.0525422 7.28484 0.157573 7.07271L3.20108 4L0.157573 0.927289C-0.0525422 0.715158 -0.0525063 0.371265 0.157573 0.159112Z"
+                          fill="#4A4747"/>
+                </svg>
+            </a>
+        </li>
+<!--        продолжаем заполнять ссылки в боковом меню по примеру выше-->
+    </ul>
+</nav>
+```
+Здесь важно увидеть следующее: у каждого бокового меню есть ссылка("Назад") с функционалом возвращения назад в боковом 
+меню на мобильных устройствах, главная ссылка с классом "main-item" и последующие ссылки для перехода на новые страницы.
 
 **JavaScript (header-component.js):**
+
+В файле header-component.js объявляем переменную, и добавляем ей обработчик события по открытию бокового меню 
+первого уровня:
 ```javascript
-// 1. Объявить переменную в начале функции initHeaderMenu()
+// 1. Объявить переменную в начале функции initHeaderMenu() (главной функции данного компонента)
 const newSectionLinkEl = document.getElementById("new-section-link");
-const newSectionSubmenuEl = document.getElementById("new-section-submenu");
+const newSubmenu = document.getElementById("new-submenu");
 
 // 2. Добавить обработчик в функцию initSubmenu()
 newSectionLinkEl.addEventListener("click", () => {
@@ -112,163 +187,201 @@ newSectionLinkEl.addEventListener("click", () => {
     document.body.style.overflow = "hidden";
     
     newSectionLinkEl.classList.add("active");
-    newSectionSubmenuEl.classList.add("open");
+    newSubmenu.classList.add("open");
     submenuLayoutEl.classList.add("open");
 });
 ```
 
-### 2. Добавить пункт в боковое меню первого уровня
+Объявляем переменную по id элемента (для ссылки в главном меню мобильной версии) и добавляем 
+ей обработчик события по открытию бокового меню (делаем это строго в callback-функции initMobileSubmenu()):
+```javascript
+// 1. Объявить переменную в начале функции initMobileSubmenu()
+const newSectionLinkEl1 = document.getElementById("new-section-link-1");
+const newSubmenu = document.getElementById("new-submenu");
 
-**HTML (внутри catalog-submenu):**
+// 2. Добавить обработчик в функцию initSubmenu()
+newSectionLinkEl.addEventListener("click", () => {
+    if (newSectionLinkEl.classList.contains("active")) {
+        refreshMenu();
+        return;
+    }
+
+    refreshMenu();
+    overlayEl.classList.add("open");
+    document.body.style.overflow = "hidden";
+
+    newSectionLinkEl.classList.add("active");
+    newSubmenu.classList.add("open");
+    submenuLayoutEl.classList.add("open");
+});
+```
+
+### 3. Добавить пункт-ссылку в существующее боковое меню первого уровня и создать привязанное к нему боковое меню второго уровня
+**HTML**
+
+Внутри меню с id="catalog-submenu" (или любое меню с классом "first-submenu" и заданным id), добавляем пункт меню (ссылку):
 ```html
 <li class="submenu-item">
     <a class="common-link" href="javascript:void(0)" data-kptd="6">
-        <span>КПТД-6 – новый материал</span>
-        <svg class="link-arrow">...</svg>
+        <span>Новая ссылка для бокового меню с id="catalog-submenu"</span>
+        <svg class="link-arrow" width="5" height="8" viewBox="0 0 5 8">
+            <path d="M0.157573 0.159112C0.367706 -0.0530373 0.708317 -0.0530373 0.91845 0.159112L4.3424 3.61591C4.55253 3.82806 4.55253 4.17194 4.3424 4.38409L0.91845 7.84089C0.708317 8.05304 0.367706 8.05304 0.157573 7.84089C-0.0525063 7.62873 -0.0525422 7.28484 0.157573 7.07271L3.20108 4L0.157573 0.927289C-0.0525422 0.715158 -0.0525063 0.371265 0.157573 0.159112Z"
+                  fill="#4A4747"/>
+        </svg>
     </a>
 </li>
 ```
+Здесь важно отметить, что мы назначаем data-атрибуты в соответствии с логикой привязки второго бокового меню.
 
-**HTML (добавить соответствующий блок для второго уровня):**
+**HTML**
+
+Допустим у нас уже есть привязанное второе боковое меню к первому боковому меню. Тогда мы в nav с id="catalog-second-submenu" 
+и классом "second-submenu" создаем список ul.submenu-items (в данном случае мы говорим в контексте меню с 
+id="catalog-submenu". Если мы хотим создать новое второе боковое меню, то смотри следующий кейс):
 ```html
 <ul class="submenu-items" id="kptd-menu-list-6">
-    <li class="submenu-item">
+    <li class="submenu-item main-item">
         <a class="common-link" href="/catalog/kptd-6">
             <span>Каталог товаров КПТД-6</span>
-            <svg>...</svg>
+            <svg width="11" height="8" viewBox="0 0 11 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M6.46484 0.146447C6.66011 -0.0488155 6.97661 -0.0488155 7.17188 0.146447L10.3535 3.32809C10.5488 3.52335 10.5488 3.83986 10.3535 4.03512L7.17188 7.21676C6.97661 7.41202 6.66011 7.41202 6.46484 7.21676C6.26958 7.0215 6.26958 6.70499 6.46484 6.50973L8.79297 4.1816H0V3.1816H8.79297L6.46484 0.853478C6.26958 0.658216 6.26958 0.341709 6.46484 0.146447Z"
+                      fill="#4A4747"/>
+            </svg>
+        </a>
+    </li>
+    <li class="submenu-item">
+        <a class="common-link" href="/kptd-6-new-link">
+            <span>Подробнее о КПТД-6</span>
+            <svg width="11" height="8" viewBox="0 0 11 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M6.46484 0.146447C6.66011 -0.0488155 6.97661 -0.0488155 7.17188 0.146447L10.3535 3.32809C10.5488 3.52335 10.5488 3.83986 10.3535 4.03512L7.17188 7.21676C6.97661 7.41202 6.66011 7.41202 6.46484 7.21676C6.26958 7.0215 6.26958 6.70499 6.46484 6.50973L8.79297 4.1816H0V3.1816H8.79297L6.46484 0.853478C6.26958 0.658216 6.26958 0.341709 6.46484 0.146447Z"
+                      fill="#4A4747"/>
+            </svg>
         </a>
     </li>
     <!-- дополнительные пункты -->
 </ul>
 ```
 
-## 🚀 Создание новых уровней
+### 4. Создать боковое меню второго уровня для имеющегося бокового меню первого уровня
+**HTML**
 
-### Механизм создания меню N-го уровня
-
-#### Шаг 1: HTML-разметка
+Внутри меню с id="research-submenu" (или любое меню с классом "first-submenu" и заданным id), задаем для li.submenu-item 
+(без класса "main-item") атрибуты href="javascript:void(0)" и data-атрибуты (в данном случае мы рассматриваем меню с 
+id="research-menu" и будем задавать атрибуты data-research="n"):
 ```html
-<!-- Шаблон для уровня N -->
-<nav class="nth-submenu" id="catalog-nth-submenu">
-    <div class="submenu-item back-link">
-        <a class="common-link" href="javascript:void(0)">
-            <svg>...</svg>
-            <span>Назад</span>
-        </a>
-    </div>
-    <ul class="submenu-items" id="nth-menu-list-1">
-        <!-- Пункты меню уровня N -->
-    </ul>
-</nav>
+<li class="submenu-item">
+    <a class="common-link" href="javascript:void(0)" data-research="1">
+        <span>Лаборатория ОДО Евролиния</span>
+        <svg class="link-arrow" width="5" height="8" viewBox="0 0 5 8">
+            <path d="M0.157573 0.159112C0.367706 -0.0530373 0.708317 -0.0530373 0.91845 0.159112L4.3424 3.61591C4.55253 3.82806 4.55253 4.17194 4.3424 4.38409L0.91845 7.84089C0.708317 8.05304 0.367706 8.05304 0.157573 7.84089C-0.0525063 7.62873 -0.0525422 7.28484 0.157573 7.07271L3.20108 4L0.157573 0.927289C-0.0525422 0.715158 -0.0525063 0.371265 0.157573 0.159112Z"
+                  fill="#4A4747"/>
+        </svg>
+    </a>
+</li>
+<li class="submenu-item">
+    <a class="common-link" href="javascript:void(0)" data-research="2">
+        <span>База знаний КПТД</span>
+        <svg class="link-arrow" width="5" height="8" viewBox="0 0 5 8">
+            <path d="M0.157573 0.159112C0.367706 -0.0530373 0.708317 -0.0530373 0.91845 0.159112L4.3424 3.61591C4.55253 3.82806 4.55253 4.17194 4.3424 4.38409L0.91845 7.84089C0.708317 8.05304 0.367706 8.05304 0.157573 7.84089C-0.0525063 7.62873 -0.0525422 7.28484 0.157573 7.07271L3.20108 4L0.157573 0.927289C-0.0525422 0.715158 -0.0525063 0.371265 0.157573 0.159112Z"
+                  fill="#4A4747"/>
+        </svg>
+    </a>
+</li>
+<!--другие ссылки данного списка-->
 ```
 
-#### Шаг 2: CSS-стили
-```css
-/* header.css */
-.submenu-layout {
-    &.open {
-        /* Добавить для каждого нового уровня */
-        &.n-menus {
-            width: calc(340px * n);
-        }
-    }
-}
+**HTML**
 
-/* Стили для уровня N */
-nav.nth-submenu {
-    width: 340px;
-    transform: translateX(calc(-340px * (n - 1))); /* Сдвиг */
-    opacity: 0;
-    transition: all 0.3s ease;
-    display: none;
-    
-    &.open {
-        transform: translateX(0);
-        opacity: 1;
-        display: block;
-    }
-}
+Создаем боковое меню второго уровня:
+```html
+    <nav class="second-submenu" id="research-second-submenu">
+        <div class="submenu-item back-link">
+            <a class="common-link" href="javascript:void(0)">
+                <svg xmlns="http://www.w3.org/2000/svg" width="5" height="8" viewBox="0 0 5 8" fill="none">
+                    <path d="M4.34243 0.159112C4.13229 -0.0530373 3.79168 -0.0530373 3.58155 0.159112L0.1576 3.61591C-0.0525333 3.82806 -0.0525333 4.17194 0.1576 4.38409L3.58155 7.84089C3.79168 8.05304 4.13229 8.05304 4.34243 7.84089C4.55251 7.62873 4.55254 7.28484 4.34243 7.07271L1.29892 4L4.34243 0.927289C4.55254 0.715158 4.55251 0.371265 4.34243 0.159112Z" fill="#4A4747"/>
+                </svg>
+                <span>Назад</span>
+            </a>
+        </div>
+        <ul class="submenu-items" id="research-1">
+            <li class="submenu-item main-item">
+                <a class="common-link" href="/catalog/research-1">
+                    <span>Главная ссылка второго уровня для меню с id="research-submenu"</span>
+                    <svg width="11" height="8" viewBox="0 0 11 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M6.46484 0.146447C6.66011 -0.0488155 6.97661 -0.0488155 7.17188 0.146447L10.3535 3.32809C10.5488 3.52335 10.5488 3.83986 10.3535 4.03512L7.17188 7.21676C6.97661 7.41202 6.66011 7.41202 6.46484 7.21676C6.26958 7.0215 6.26958 6.70499 6.46484 6.50973L8.79297 4.1816H0V3.1816H8.79297L6.46484 0.853478C6.26958 0.658216 6.26958 0.341709 6.46484 0.146447Z"
+                              fill="#4A4747"/>
+                    </svg>
+                </a>
+            </li>
+            <li class="submenu-item">
+                <a class="common-link" href="/research-1-new-link">
+                    <span>Ссылка второго уровня</span>
+                    <svg width="11" height="8" viewBox="0 0 11 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M6.46484 0.146447C6.66011 -0.0488155 6.97661 -0.0488155 7.17188 0.146447L10.3535 3.32809C10.5488 3.52335 10.5488 3.83986 10.3535 4.03512L7.17188 7.21676C6.97661 7.41202 6.66011 7.41202 6.46484 7.21676C6.26958 7.0215 6.26958 6.70499 6.46484 6.50973L8.79297 4.1816H0V3.1816H8.79297L6.46484 0.853478C6.26958 0.658216 6.26958 0.341709 6.46484 0.146447Z"
+                              fill="#4A4747"/>
+                    </svg>
+                </a>
+            </li>
+            <!--другие ссылки этого подменю-->
+        </ul>
+        <!--последующие боковые меню второго уровня по аналогичной структуре выше-->
+    </nav>
 ```
 
-#### Шаг 3: JavaScript-обработчики
+**JavaScript**
 
+Объявляем переменные для привязки ссылок бокового меню первого уровня ко ссылкам боковых меню второго уровня
 ```javascript
-// header-component.js
+// в функции initHeaderMenu()
+const researchMenuLinkEls = document.querySelectorAll('#research-submenu .submenu-items .common-link');
+const researchSecondMenuEl = document.getElementById("research-second-submenu");
+const secondResearchMenuListEls = document.querySelectorAll('#research-second-submenu .submenu-items');
 
-// 1. Добавить переменные
-const nthSubmenuEl = document.getElementById("catalog-nth-submenu");
-const nthMenuListEls = document.querySelectorAll('.nth-submenu .submenu-items');
-const prevLevelLinks = document.querySelectorAll('.previous-level .common-link[data-nth]');
+// меню первого уровня
+const researchSubmenuEl = document.getElementById("research-submenu");
+```
+Создаем обработчик события по открытию меню второго уровня:
+```javascript
+// внутри initSecondSubmenu()
+researchMenuLinkEls.forEach(link => {
+    link.addEventListener('click', () => {
+        if(link.classList.contains("active")) {
+            link.classList.remove("active");
+            submenuLayoutEl.classList.remove("two-menus");
+            secondResearchMenuListEls.forEach(menuList => menuList.style.display = "none");
+            return;
+        }
+        researchMenuLinkEls.forEach(linkEl => linkEl.classList.remove("active"));
+        secondResearchMenuListEls.forEach(menuList => menuList.style.display = "none");
 
-// 2. Создать функцию инициализации
-const initNthSubmenu = () => {
-    prevLevelLinks.forEach(link => {
-        link.addEventListener('click', (e) => {
-            e.preventDefault();
-            
-            if(link.classList.contains("active")) {
-                link.classList.remove("active");
-                nthSubmenuEl.classList.remove("open");
-                submenuLayoutEl.classList.remove("n-menus");
-                return;
-            }
-            
-            // Сброс активных состояний
-            prevLevelLinks.forEach(l => l.classList.remove("active"));
-            nthMenuListEls.forEach(list => list.style.display = "none");
-            
-            // Активация текущего пункта
-            link.classList.add('active');
-            
-            // Определяем режим (мобильный/десктоп)
-            if(burgerMenuEl.classList.contains("open")) {
-                // Мобильный: скрываем предыдущий уровень
-                document.querySelector('.previous-level').classList.remove("open");
-            } else {
-                // Десктоп: расширяем область
-                submenuLayoutEl.classList.add("n-menus");
-            }
-            
-            // Показываем уровень N
-            nthSubmenuEl.classList.add('open');
-            
-            // Показываем соответствующий список
-            const itemId = link.dataset.nth;
-            const targetList = document.getElementById(`nth-menu-list-${itemId}`);
-            if(targetList) targetList.style.display = "flex";
-        });
+        link.classList.add('active');
+        burgerMenuEl.classList.contains("open") ? researchSubmenuEl.classList.remove("open") :
+            submenuLayoutEl.classList.add("two-menus");
+
+        const research = link.dataset.research;     // Получаем research из data-атрибута ссылок, что добавили выше
+        researchSecondMenuEl.classList.add('open');
+
+        const researchMenuListEl = document.getElementById(`research-${research}`);
+        researchMenuListEl.style.display = "flex";
     });
-};
+});
+```
+Не забываем добавить механизм закрытия созданного меню второго уровня везде, где нужно
+```javascript
+//внутри refreshMenu()
+researchSecondMenuEl.classList.remove("open");
+researchMenuLinkEls.forEach((linkEl) => linkEl.classList.remove("active"));
 
-// 3. Обновить refreshMenu()
-const refreshMenu = () => {
-    // ... существующий код ...
-    nthSubmenuEl.classList.remove("open");
-    submenuLayoutEl.classList.remove("n-menus");
-    prevLevelLinks.forEach(link => link.classList.remove("active"));
-    nthMenuListEls.forEach(list => list.style.display = "none");
-};
-
-// 4. Обновить initMobileSubmenu() для кнопки "Назад"
-const initMobileSubmenu = () => {
-    // ... существующий код ...
-    
-    backLinkEls.forEach(link => {
-        link.addEventListener('click', () => {
-            // ... существующая логика ...
-            
-            if (nthSubmenuEl.classList.contains('open')) {
-                // Возврат на предыдущий уровень
-                prevLevelLinks.forEach(l => l.classList.remove("active"));
-                nthSubmenuEl.classList.remove("open");
-                document.querySelector('.previous-level').classList.add("open");
-            }
-        });
-    });
-};
-
-// 5. Вызвать в initHeaderMenu()
-initNthSubmenu();
+// внутри обработчиков для ссылок "Назад" боковых меню
+if (researchSubmenuEl.classList.contains('open')) {
+    //остальной код
+    secondResearchMenuListEls.forEach(menuList => menuList.style.display = "none");
+} else if(researchSecondMenuEl.classList.contains('open')) {
+    researchMenuLinkEls.forEach(linkEl => linkEl.classList.remove("active"));
+    researchSubmenuEl.classList.add("open");
+    researchSecondMenuEl.classList.remove("open");
+    secondResearchMenuListEls.forEach(menuList => menuList.style.display = "none");
+}
 ```
 
 ## 🚀 Интеграция меню в ванильный JS проект
@@ -304,7 +417,7 @@ initNthSubmenu();
 
 ### ✅ **Файл 3: scripts/main.js**
 - Файл main.js из архива положите в папку `ваш-проект/scripts/`
-- 
+
 ### ✅ **Файл 4: index.html**
 - Файл index.html должен лежать в корне проекта`
 
@@ -371,26 +484,3 @@ initNthSubmenu();
 | Десктоп | > 996px | Меню слева, два уровня одновременно |
 | Планшет | 500-996px | Бургер-меню, выезд справа |
 | Мобильный | < 500px | Узкое меню (320px) |
-
-## ❓ Частые вопросы
-
-### Q: Как добавить третий уровень к существующему меню?
-**A:** Следуйте паттерну выше. Пример для добавления третьего уровня к КПТД-1:
-```html
-<!-- В catalog-second-submenu добавьте ссылку с data-атрибутом -->
-<a class="common-link" href="javascript:void(0)" data-third="1">
-    <span>Подробные спецификации</span>
-    <svg>...</svg>
-</a>
-
-<!-- Создайте контейнер для третьего уровня -->
-<nav class="third-submenu" id="third-submenu">
-    <!-- контент -->
-</nav>
-```
-
-## Общие рекомендации
-
-Для сложных структур меню рекомендуется:
-- Использовать не более 3 уровней вложенности
-- Оптимизировать количество пунктов (не более 10 на уровень)

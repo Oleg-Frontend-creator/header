@@ -10,9 +10,9 @@ export function initHeaderMenu() {
     const overlayEl = document.getElementById("overlay");
 
     // ссылки внутри первого бокового меню и области для генерации второго бокового меню на десктопе
-    const catalogMenuLinkEls = document.querySelectorAll('.catalog-submenu .submenu-items .common-link');
+    const catalogMenuLinkEls = document.querySelectorAll('#catalog-submenu .submenu-items .common-link');
     const catalogSecondMenuEl = document.getElementById("catalog-second-submenu");
-    const secondMenuListEls = document.querySelectorAll('.second-submenu .submenu-items');
+    const secondCatalogMenuListEls = document.querySelectorAll('#catalog-second-submenu .submenu-items');
 
     // бургерное меню, header, который сдвигается наверх при нажатии на бургер, и ссылки для перемещения назад в другое меню ссылок
     const burgerMenuEl = document.getElementById('burger');
@@ -31,11 +31,13 @@ export function initHeaderMenu() {
         catalogSubmenuEl.classList.remove("open");
         researchSubmenuEl.classList.remove("open");
         submenuLayoutEl.classList.remove("two-menus");
-        catalogSecondMenuEl.classList.remove("open");
         headerMobileMenuEl.classList.remove("open");
         burgerMenuEl.classList.remove("open");
         headerEl.classList.remove("closed");
+
+        catalogSecondMenuEl.classList.remove("open");
         catalogMenuLinkEls.forEach((linkEl) => linkEl.classList.remove("active"));
+
         overlayEl.classList.remove("open");
     }
     // создание обработчиков для ссылок, которые открывают первое боковое меню
@@ -90,11 +92,11 @@ export function initHeaderMenu() {
                 if(link.classList.contains("active")) {
                     link.classList.remove("active");
                     submenuLayoutEl.classList.remove("two-menus");
-                    secondMenuListEls.forEach(menuList => menuList.style.display = "none");
+                    secondCatalogMenuListEls.forEach(menuList => menuList.style.display = "none");
                     return;
                 }
                 catalogMenuLinkEls.forEach(linkEl => linkEl.classList.remove("active"));
-                secondMenuListEls.forEach(menuList => menuList.style.display = "none");
+                secondCatalogMenuListEls.forEach(menuList => menuList.style.display = "none");
 
                 link.classList.add('active');
                 burgerMenuEl.classList.contains("open") ? catalogSubmenuEl.classList.remove("open") :
@@ -151,7 +153,7 @@ export function initHeaderMenu() {
                 if (catalogSubmenuEl.classList.contains('open')) {
                     headerMobileMenuEl.classList.add("open");
                     catalogSubmenuEl.classList.remove("open");
-                    secondMenuListEls.forEach(menuList => menuList.style.display = "none");
+                    secondCatalogMenuListEls.forEach(menuList => menuList.style.display = "none");
                 } else if (researchSubmenuEl.classList.contains('open')) {
                     headerMobileMenuEl.classList.add("open");
                     researchSubmenuEl.classList.remove("open");
@@ -159,7 +161,7 @@ export function initHeaderMenu() {
                     catalogMenuLinkEls.forEach(linkEl => linkEl.classList.remove("active"));
                     catalogSubmenuEl.classList.add("open");
                     catalogSecondMenuEl.classList.remove("open");
-                    secondMenuListEls.forEach(menuList => menuList.style.display = "none");
+                    secondCatalogMenuListEls.forEach(menuList => menuList.style.display = "none");
                 }
             });
         })

@@ -281,25 +281,8 @@ body {
             flex: 0 0 340px;
             transition: all 0.3s ease;
 
-            &.research-submenu {
-                display: none;
-
-                &.open {
-                    display: block;
-                }
-
-                .menu-items .menu-item:first-child {
-                    padding-bottom: 0;
-                    border-bottom: none;
-                }
-            }
-
-            &.catalog-submenu {
-                display: none;
-
-                &.open {
-                    display: block;
-                }
+            &.open {
+                display: block;
             }
         }
 
