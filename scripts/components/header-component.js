@@ -194,20 +194,26 @@ export function initHeaderMenu() {
                 viewportHeight = window.innerHeight;
             }
 
-            // Вычитаем высоту шапки, если меню открыто под ней
-            const header = document.querySelector('.header');
-            const headerHeight = header ? header.offsetHeight : 0;
-            // На мобильных устройствах (max-width: 996px) шапка фиксирована сверху, но меню должно начинаться от верха экрана.
-            // Проверим, нужно ли учитывать header. Если меню позиционировано от верха (top: 0), то вычитать не надо.
-            // В CSS для мобильных .submenu-layout имеет top: 0 (см. @media). Поэтому headerHeight не вычитаем.
             menu.style.height = viewportHeight + 'px';
         }
 
-        // Функция для прокрутки к полю ввода
+        // Функция для прокрутки к полю ввода (с отступом сверху 20px)
         function scrollSearchInputIntoView(input) {
-            // Небольшая задержка, чтобы клавиатура успела появиться
             setTimeout(() => {
-                input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                const menu = document.querySelector('.submenu-layout');
+                if (!menu) return;
+
+                const inputRect = input.getBoundingClientRect();
+                const menuRect = menu.getBoundingClientRect();
+
+                // Желаемая позиция прокрутки: верх input на 20px ниже верхнего края меню
+                const targetScrollTop = menu.scrollTop + (inputRect.top - menuRect.top) - 20;
+
+                // Ограничиваем, чтобы не выйти за пределы
+                const maxScroll = menu.scrollHeight - menu.clientHeight;
+                const clampedScroll = Math.max(0, Math.min(targetScrollTop, maxScroll));
+
+                menu.scrollTo({ top: clampedScroll, behavior: 'smooth' });
             }, 300);
         }
 
@@ -220,24 +226,19 @@ export function initHeaderMenu() {
                 window.visualViewport.addEventListener('resize', adjustMobileMenuHeight);
             }
 
-            // При открытии меню также обновляем высоту (чтобы учесть возможные изменения)
+            // При открытии меню также обновляем высоту
             const burger = document.getElementById('burger');
-            const overlay = document.getElementById('overlay');
-            const menu = document.querySelector('.submenu-layout');
-
             function onMenuOpen() {
                 adjustMobileMenuHeight();
             }
 
-            // Слушаем клик по бургеру (меню открывается)
             if (burger) {
                 burger.addEventListener('click', function() {
-                    // Небольшая задержка, чтобы меню появилось в DOM
                     setTimeout(onMenuOpen, 50);
                 });
             }
 
-            // При клике на ссылки, которые открывают подменю, тоже обновляем высоту (на случай, если контент меняется)
+            // При клике на ссылки, открывающие подменю
             const catalogLinks = document.querySelectorAll('#catalog-link, #research-link, #catalog-link-1, #research-link-1');
             catalogLinks.forEach(link => {
                 link.addEventListener('click', () => setTimeout(onMenuOpen, 50));
@@ -247,10 +248,8 @@ export function initHeaderMenu() {
             const searchInputs = document.querySelectorAll('.submenu-layout .search-input');
             searchInputs.forEach(input => {
                 input.addEventListener('focus', function() {
-                    // Сначала обновляем высоту (клавиатура могла изменить видимую область)
-                    adjustMobileMenuHeight();
-                    // Затем прокручиваем к полю
-                    scrollSearchInputIntoView(this);
+                    adjustMobileMenuHeight();          // обновляем высоту с учётом клавиатуры
+                    scrollSearchInputIntoView(this);   // прокручиваем к полю
                 });
             });
 
