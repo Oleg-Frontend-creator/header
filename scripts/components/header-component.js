@@ -184,33 +184,42 @@ export function initHeaderMenu() {
     initMobileSubmenu();
     initCloseEffects();
 
-    // Дополнительная логика для мобильного меню (высота и прокрутка поиска)
-    (function() {
-        // Функция обновления высоты мобильного меню
-        function adjustMobileMenuHeight() {
-            const menu = document.querySelector('.submenu-layout');
-            if (!menu) return;
 
+    // === Дополнительная логика для мобильного меню (высота, прокрутка, justify-content) ===
+    (function() {
+        const menu = document.querySelector('.submenu-layout');
+        if (!menu) return;
+
+        const isMobile = window.matchMedia("(max-width: 996px)").matches;
+        const originalJustifyContent = 'space-between'; // значение из CSS для мобильных
+
+        // Функция обновления высоты меню
+        function adjustMobileMenuHeight() {
             let viewportHeight;
             if (window.visualViewport) {
                 viewportHeight = window.visualViewport.height;
             } else {
                 viewportHeight = window.innerHeight;
             }
-
             menu.style.height = viewportHeight + 'px';
         }
 
-        // Обработка фокуса на полях поиска внутри мобильного меню
+        // Обработка фокуса на полях поиска
         function setupSearchFocusHandlers() {
             const searchInputs = document.querySelectorAll('.submenu-layout .search-input');
             searchInputs.forEach(input => {
                 input.addEventListener('focus', function() {
-                    // Обновляем высоту (клавиатура изменила viewport)
-                    adjustMobileMenuHeight();
-
-                    // Плавно прокручиваем к полю, используя CSS scroll-margin-top для отступа
+                    adjustMobileMenuHeight(); // обновляем высоту с учётом клавиатуры
+                    if (isMobile) {
+                        menu.style.justifyContent = 'unset'; // убираем space-between
+                    }
+                    // прокрутка к полю
                     this.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                });
+                input.addEventListener('blur', function() {
+                    if (isMobile) {
+                        menu.style.justifyContent = originalJustifyContent; // возвращаем
+                    }
                 });
             });
         }
@@ -222,23 +231,25 @@ export function initHeaderMenu() {
             window.visualViewport.addEventListener('resize', adjustMobileMenuHeight);
         }
 
-        // Вызываем сразу для установки начальной высоты
+        // Начальная установка высоты
         adjustMobileMenuHeight();
 
-        // Отслеживаем открытие меню, чтобы обновить высоту (например, при повороте после открытия)
-        const submenuLayout = document.getElementById('submenu-layout');
-        if (submenuLayout) {
-            const observer = new MutationObserver(function(mutations) {
-                mutations.forEach(function(mutation) {
-                    if (mutation.attributeName === 'class') {
-                        if (submenuLayout.classList.contains('open')) {
-                            adjustMobileMenuHeight();
+        // Отслеживаем открытие/закрытие меню
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                if (mutation.attributeName === 'class') {
+                    if (menu.classList.contains('open')) {
+                        adjustMobileMenuHeight();
+                    } else {
+                        // при закрытии меню возвращаем justify-content (на случай, если blur не сработал)
+                        if (isMobile) {
+                            menu.style.justifyContent = originalJustifyContent;
                         }
                     }
-                });
+                }
             });
-            observer.observe(submenuLayout, { attributes: true });
-        }
+        });
+        observer.observe(menu, { attributes: true });
 
         // Устанавливаем обработчики фокуса
         setupSearchFocusHandlers();
