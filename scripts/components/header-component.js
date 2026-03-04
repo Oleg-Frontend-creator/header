@@ -89,7 +89,7 @@ export function initHeaderMenu() {
     const initSecondSubmenu = () => {
         catalogMenuLinkEls.forEach(link => {
             link.addEventListener('click', () => {
-                if(link.classList.contains("active")) {
+                if (link.classList.contains("active")) {
                     link.classList.remove("active");
                     submenuLayoutEl.classList.remove("two-menus");
                     secondCatalogMenuListEls.forEach(menuList => menuList.style.display = "none");
@@ -186,37 +186,23 @@ export function initHeaderMenu() {
 
 
     // === Дополнительная логика для мобильного меню (высота, прокрутка, justify-content) ===
-    (function() {
+    (function () {
         const menu = document.querySelector('.submenu-layout');
         if (!menu) return;
 
         const isMobile = window.matchMedia("(max-width: 996px)").matches;
         const originalJustifyContent = 'space-between'; // значение из CSS для мобильных
 
-        // Функция обновления высоты меню
-        function adjustMobileMenuHeight() {
-            let viewportHeight;
-            if (window.visualViewport) {
-                viewportHeight = window.visualViewport.height;
-            } else {
-                viewportHeight = window.innerHeight;
-            }
-            menu.style.height = viewportHeight + 'px';
-        }
-
         // Обработка фокуса на полях поиска
         function setupSearchFocusHandlers() {
             const searchInputs = document.querySelectorAll('.submenu-layout .search-input');
             searchInputs.forEach(input => {
-                input.addEventListener('focus', function() {
-                    adjustMobileMenuHeight(); // обновляем высоту с учётом клавиатуры
+                input.addEventListener('focus', function () {
                     if (isMobile) {
                         menu.style.justifyContent = 'unset'; // убираем space-between
                     }
-                    // прокрутка к полю
-                    this.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 });
-                input.addEventListener('blur', function() {
+                input.addEventListener('blur', function () {
                     if (isMobile) {
                         menu.style.justifyContent = originalJustifyContent; // возвращаем
                     }
@@ -224,32 +210,15 @@ export function initHeaderMenu() {
             });
         }
 
-        // Подписка на события изменения размеров
-        window.addEventListener('resize', adjustMobileMenuHeight);
-        window.addEventListener('orientationchange', adjustMobileMenuHeight);
-        if (window.visualViewport) {
-            window.visualViewport.addEventListener('resize', adjustMobileMenuHeight);
-        }
-
-        // Начальная установка высоты
-        adjustMobileMenuHeight();
-
         // Отслеживаем открытие/закрытие меню
-        const observer = new MutationObserver(function(mutations) {
-            mutations.forEach(function(mutation) {
-                if (mutation.attributeName === 'class') {
-                    if (menu.classList.contains('open')) {
-                        adjustMobileMenuHeight();
-                    } else {
-                        // при закрытии меню возвращаем justify-content (на случай, если blur не сработал)
-                        if (isMobile) {
-                            menu.style.justifyContent = originalJustifyContent;
-                        }
-                    }
+        const observer = new MutationObserver(function (mutations) {
+            mutations.forEach(function (mutation) {
+                if (mutation.attributeName === 'class' && !menu.classList.contains('open') && isMobile) {
+                    menu.style.justifyContent = originalJustifyContent;
                 }
             });
         });
-        observer.observe(menu, { attributes: true });
+        observer.observe(menu, {attributes: true});
 
         // Устанавливаем обработчики фокуса
         setupSearchFocusHandlers();
