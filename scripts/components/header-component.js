@@ -177,16 +177,20 @@ export function initHeaderMenu() {
         // при изменении размеров окна сбрасываются все активные классы меню
         window.addEventListener('resize', refreshMenu);
     };
-    // фикс багов с мобильным input
-    const initMobileMenu = () => {
-        'use strict';
+    // инициализация всех обработчиков и событий
+    initSubmenu();
+    initSecondSubmenu();
+    initBurgerMenu();
+    initMobileSubmenu();
+    initCloseEffects();
 
-        // Функция для установки корректной высоты мобильного меню
+    // Дополнительная логика для мобильного меню (высота и прокрутка поиска)
+    (function() {
+        // Функция обновления высоты мобильного меню
         function adjustMobileMenuHeight() {
             const menu = document.querySelector('.submenu-layout');
             if (!menu) return;
 
-            // Получаем высоту видимой области (с учётом клавиатуры)
             let viewportHeight;
             if (window.visualViewport) {
                 viewportHeight = window.visualViewport.height;
@@ -197,58 +201,46 @@ export function initHeaderMenu() {
             menu.style.height = viewportHeight + 'px';
         }
 
-        // Инициализация обработчиков
-        function initMobileMenuFix() {
-            // Обновляем высоту при изменении размеров окна, ориентации и изменении visualViewport
-            window.addEventListener('resize', adjustMobileMenuHeight);
-            window.addEventListener('orientationchange', adjustMobileMenuHeight);
-            if (window.visualViewport) {
-                window.visualViewport.addEventListener('resize', adjustMobileMenuHeight);
-            }
-
-            // При открытии меню также обновляем высоту
-            const burger = document.getElementById('burger');
-            function onMenuOpen() {
-                adjustMobileMenuHeight();
-            }
-
-            if (burger) {
-                burger.addEventListener('click', function() {
-                    setTimeout(onMenuOpen, 50);
-                });
-            }
-
-            // При клике на ссылки, открывающие подменю
-            const catalogLinks = document.querySelectorAll('#catalog-link, #research-link, #catalog-link-1, #research-link-1');
-            catalogLinks.forEach(link => {
-                link.addEventListener('click', () => setTimeout(onMenuOpen, 50));
-            });
-
-            // Обработка фокуса на полях поиска внутри мобильного меню
+        // Обработка фокуса на полях поиска внутри мобильного меню
+        function setupSearchFocusHandlers() {
             const searchInputs = document.querySelectorAll('.submenu-layout .search-input');
             searchInputs.forEach(input => {
                 input.addEventListener('focus', function() {
-                    adjustMobileMenuHeight();               // обновляем высоту с учётом клавиатуры
-                    this.scrollIntoView({ behavior: 'smooth', block: 'start' }); // прокручиваем к полю с отступом из CSS
+                    // Обновляем высоту (клавиатура изменила viewport)
+                    adjustMobileMenuHeight();
+
+                    // Плавно прокручиваем к полю, используя CSS scroll-margin-top для отступа
+                    this.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 });
             });
-
-            // Первоначальный вызов
-            adjustMobileMenuHeight();
         }
 
-        // Запускаем после полной загрузки DOM
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initMobileMenuFix);
-        } else {
-            initMobileMenuFix();
+        // Подписка на события изменения размеров
+        window.addEventListener('resize', adjustMobileMenuHeight);
+        window.addEventListener('orientationchange', adjustMobileMenuHeight);
+        if (window.visualViewport) {
+            window.visualViewport.addEventListener('resize', adjustMobileMenuHeight);
         }
-    };
-    // инициализация всех обработчиков и событий
-    initSubmenu();
-    initSecondSubmenu();
-    initBurgerMenu();
-    initMobileSubmenu();
-    initCloseEffects();
-    initMobileMenu();
+
+        // Вызываем сразу для установки начальной высоты
+        adjustMobileMenuHeight();
+
+        // Отслеживаем открытие меню, чтобы обновить высоту (например, при повороте после открытия)
+        const submenuLayout = document.getElementById('submenu-layout');
+        if (submenuLayout) {
+            const observer = new MutationObserver(function(mutations) {
+                mutations.forEach(function(mutation) {
+                    if (mutation.attributeName === 'class') {
+                        if (submenuLayout.classList.contains('open')) {
+                            adjustMobileMenuHeight();
+                        }
+                    }
+                });
+            });
+            observer.observe(submenuLayout, { attributes: true });
+        }
+
+        // Устанавливаем обработчики фокуса
+        setupSearchFocusHandlers();
+    })();
 }
