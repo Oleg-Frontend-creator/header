@@ -197,26 +197,6 @@ export function initHeaderMenu() {
             menu.style.height = viewportHeight + 'px';
         }
 
-        // Функция для прокрутки к полю ввода (с отступом сверху 20px)
-        function scrollSearchInputIntoView(input) {
-            setTimeout(() => {
-                const menu = document.querySelector('.submenu-layout');
-                if (!menu) return;
-
-                const inputRect = input.getBoundingClientRect();
-                const menuRect = menu.getBoundingClientRect();
-
-                // Желаемая позиция прокрутки: верх input на 20px ниже верхнего края меню
-                const targetScrollTop = menu.scrollTop + (inputRect.top - menuRect.top) - 20;
-
-                // Ограничиваем, чтобы не выйти за пределы
-                const maxScroll = menu.scrollHeight - menu.clientHeight;
-                const clampedScroll = Math.max(0, Math.min(targetScrollTop, maxScroll));
-
-                menu.scrollTo({ top: clampedScroll, behavior: 'auto' });
-            }, 150);
-        }
-
         // Инициализация обработчиков
         function initMobileMenuFix() {
             // Обновляем высоту при изменении размеров окна, ориентации и изменении visualViewport
@@ -248,8 +228,8 @@ export function initHeaderMenu() {
             const searchInputs = document.querySelectorAll('.submenu-layout .search-input');
             searchInputs.forEach(input => {
                 input.addEventListener('focus', function() {
-                    adjustMobileMenuHeight();          // обновляем высоту с учётом клавиатуры
-                    scrollSearchInputIntoView(this);   // прокручиваем к полю
+                    adjustMobileMenuHeight();               // обновляем высоту с учётом клавиатуры
+                    this.scrollIntoView({ behavior: 'smooth', block: 'start' }); // прокручиваем к полю с отступом из CSS
                 });
             });
 
@@ -264,7 +244,6 @@ export function initHeaderMenu() {
             initMobileMenuFix();
         }
     };
-
     // инициализация всех обработчиков и событий
     initSubmenu();
     initSecondSubmenu();

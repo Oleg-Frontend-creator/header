@@ -318,6 +318,10 @@ body {
 
     .search-label {
         display: none;
+
+        .search-input {
+            scroll-margin-top: 80px;
+        }
     }
 }
 
