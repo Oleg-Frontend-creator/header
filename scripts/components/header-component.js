@@ -213,8 +213,8 @@ export function initHeaderMenu() {
                 const maxScroll = menu.scrollHeight - menu.clientHeight;
                 const clampedScroll = Math.max(0, Math.min(targetScrollTop, maxScroll));
 
-                menu.scrollTo({ top: clampedScroll, behavior: 'smooth' });
-            }, 300);
+                menu.scrollTo({ top: clampedScroll, behavior: 'auto' });
+            }, 150);
         }
 
         // Инициализация обработчиков
