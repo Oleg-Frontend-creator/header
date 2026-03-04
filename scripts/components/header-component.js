@@ -21,24 +21,6 @@ export function initHeaderMenu() {
     // мобильное главное меню
     const headerMobileMenuEl = document.getElementById('header-mobile-menu');
 
-    const searchInputs = document.querySelectorAll('.submenu-layout .search-input');
-    searchInputs.forEach(input => {
-        input.addEventListener('focus', function() {
-            // Прокрутка, чтобы поле было в центре видимой области
-            setTimeout(() => {
-                this.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }, 300); // Небольшая задержка для появления клавиатуры
-        });
-    });
-
-
-    function setVh() {
-        let vh = window.innerHeight * 0.01;
-        document.documentElement.style.setProperty('--vh', vh + 'px');
-    }
-    window.addEventListener('resize', setVh);
-    window.addEventListener('orientationchange', setVh);
-
     // события и функции
     // закрытие всех активных классов для меню и лайаута
     const refreshMenu = () => {
@@ -195,6 +177,94 @@ export function initHeaderMenu() {
         // при изменении размеров окна сбрасываются все активные классы меню
         window.addEventListener('resize', refreshMenu);
     };
+    // фикс багов с мобильным input
+    const initMobileMenu = () => {
+        'use strict';
+
+        // Функция для установки корректной высоты мобильного меню
+        function adjustMobileMenuHeight() {
+            const menu = document.querySelector('.submenu-layout');
+            if (!menu) return;
+
+            // Получаем высоту видимой области (с учётом клавиатуры)
+            let viewportHeight;
+            if (window.visualViewport) {
+                viewportHeight = window.visualViewport.height;
+            } else {
+                viewportHeight = window.innerHeight;
+            }
+
+            // Вычитаем высоту шапки, если меню открыто под ней
+            const header = document.querySelector('.header');
+            const headerHeight = header ? header.offsetHeight : 0;
+            // На мобильных устройствах (max-width: 996px) шапка фиксирована сверху, но меню должно начинаться от верха экрана.
+            // Проверим, нужно ли учитывать header. Если меню позиционировано от верха (top: 0), то вычитать не надо.
+            // В CSS для мобильных .submenu-layout имеет top: 0 (см. @media). Поэтому headerHeight не вычитаем.
+            menu.style.height = viewportHeight + 'px';
+        }
+
+        // Функция для прокрутки к полю ввода
+        function scrollSearchInputIntoView(input) {
+            // Небольшая задержка, чтобы клавиатура успела появиться
+            setTimeout(() => {
+                input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 300);
+        }
+
+        // Инициализация обработчиков
+        function initMobileMenuFix() {
+            // Обновляем высоту при изменении размеров окна, ориентации и изменении visualViewport
+            window.addEventListener('resize', adjustMobileMenuHeight);
+            window.addEventListener('orientationchange', adjustMobileMenuHeight);
+            if (window.visualViewport) {
+                window.visualViewport.addEventListener('resize', adjustMobileMenuHeight);
+            }
+
+            // При открытии меню также обновляем высоту (чтобы учесть возможные изменения)
+            const burger = document.getElementById('burger');
+            const overlay = document.getElementById('overlay');
+            const menu = document.querySelector('.submenu-layout');
+
+            function onMenuOpen() {
+                adjustMobileMenuHeight();
+            }
+
+            // Слушаем клик по бургеру (меню открывается)
+            if (burger) {
+                burger.addEventListener('click', function() {
+                    // Небольшая задержка, чтобы меню появилось в DOM
+                    setTimeout(onMenuOpen, 50);
+                });
+            }
+
+            // При клике на ссылки, которые открывают подменю, тоже обновляем высоту (на случай, если контент меняется)
+            const catalogLinks = document.querySelectorAll('#catalog-link, #research-link, #catalog-link-1, #research-link-1');
+            catalogLinks.forEach(link => {
+                link.addEventListener('click', () => setTimeout(onMenuOpen, 50));
+            });
+
+            // Обработка фокуса на полях поиска внутри мобильного меню
+            const searchInputs = document.querySelectorAll('.submenu-layout .search-input');
+            searchInputs.forEach(input => {
+                input.addEventListener('focus', function() {
+                    // Сначала обновляем высоту (клавиатура могла изменить видимую область)
+                    adjustMobileMenuHeight();
+                    // Затем прокручиваем к полю
+                    scrollSearchInputIntoView(this);
+                });
+            });
+
+            // Первоначальный вызов
+            adjustMobileMenuHeight();
+        }
+
+        // Запускаем после полной загрузки DOM
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initMobileMenuFix);
+        } else {
+            initMobileMenuFix();
+        }
+    };
 
     // инициализация всех обработчиков и событий
     initSubmenu();
@@ -202,4 +272,5 @@ export function initHeaderMenu() {
     initBurgerMenu();
     initMobileSubmenu();
     initCloseEffects();
+    initMobileMenu();
 }
