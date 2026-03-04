@@ -320,7 +320,7 @@ body {
         display: none;
 
         .search-input {
-            scroll-margin-top: 300px;
+            scroll-margin-top: 500px;
         }
     }
 }
