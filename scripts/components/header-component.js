@@ -21,6 +21,24 @@ export function initHeaderMenu() {
     // мобильное главное меню
     const headerMobileMenuEl = document.getElementById('header-mobile-menu');
 
+    const searchInputs = document.querySelectorAll('.submenu-layout .search-input');
+    searchInputs.forEach(input => {
+        input.addEventListener('focus', function() {
+            // Прокрутка, чтобы поле было в центре видимой области
+            setTimeout(() => {
+                this.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 300); // Небольшая задержка для появления клавиатуры
+        });
+    });
+
+
+    function setVh() {
+        let vh = window.innerHeight * 0.01;
+        document.documentElement.style.setProperty('--vh', vh + 'px');
+    }
+    window.addEventListener('resize', setVh);
+    window.addEventListener('orientationchange', setVh);
+
     // события и функции
     // закрытие всех активных классов для меню и лайаута
     const refreshMenu = () => {

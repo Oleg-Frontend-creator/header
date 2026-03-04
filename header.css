@@ -176,9 +176,11 @@ body {
 
 /*область, которая выдвигается слева на декстопе и справа на мобильных устройствах*/
 .submenu-layout {
+    height: calc(var(--vh, 1vh) * 100);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch; /* плавный скролл на iOS */
     background-color: #E9E9E9;
     padding-top: 20px;
-    height: 100svh;
     width: 340px;
     box-sizing: border-box;
     position: fixed;
