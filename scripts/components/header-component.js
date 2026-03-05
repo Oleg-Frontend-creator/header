@@ -174,43 +174,26 @@ export function initHeaderMenu() {
         document.addEventListener("keydown", (event) => {
             if (event.key === "Escape") refreshMenu();
         });
-        // Убираем глобальный обработчик resize, чтобы клавиатура не закрывала меню
-        // Вместо него ниже добавим отдельное обновление высоты
+        // при изменении размеров окна сбрасываются все активные классы меню
+        window.addEventListener('resize', refreshMenu);
     };
-
-    // === Дополнительная логика для мобильного меню ===
-    const initMobileMenuBehavior = () => {
+    // обработка фокуса по нажатию на input в боковом меню
+    const initRightFocusMenuInput = () => {
         const menu = document.querySelector('.submenu-layout');
         if (!menu) return;
 
         const isMobile = window.matchMedia("(max-width: 996px)").matches;
         const originalJustifyContent = 'space-between';
 
-        // Функция обновления высоты меню с учётом клавиатуры
-        function adjustMobileMenuHeight() {
-            let viewportHeight;
-            if (window.visualViewport) {
-                viewportHeight = window.visualViewport.height;
-            } else {
-                viewportHeight = window.innerHeight;
-            }
-            menu.style.height = viewportHeight + 'px';
-        }
-
-        // Обработка фокуса на полях поиска
+        // Обработка фокуса на поле ввода
         function setupSearchFocusHandlers() {
             const searchInputs = document.querySelectorAll('.submenu-layout .search-input');
             searchInputs.forEach(input => {
-                input.addEventListener('focus', function() {
-                    // Обновляем высоту (клавиатура изменила viewport)
-                    adjustMobileMenuHeight();
-
-                    if (isMobile) {
-                        menu.style.justifyContent = 'unset'; // убираем space-between
-                    }
+                input.addEventListener('focus', () => {
+                    if (isMobile)
+                        menu.style.justifyContent = 'unset';
                 });
-
-                input.addEventListener('blur', function() {
+                input.addEventListener('blur', function () {
                     if (isMobile) {
                         menu.style.justifyContent = originalJustifyContent; // возвращаем
                     }
@@ -218,32 +201,15 @@ export function initHeaderMenu() {
             });
         }
 
-        // Подписка на события изменения размеров (но не закрываем меню)
-        window.addEventListener('resize', adjustMobileMenuHeight);
-        window.addEventListener('orientationchange', adjustMobileMenuHeight);
-        if (window.visualViewport) {
-            window.visualViewport.addEventListener('resize', adjustMobileMenuHeight);
-        }
-
-        // Начальная установка высоты
-        adjustMobileMenuHeight();
-
-        // Отслеживаем открытие меню, чтобы обновить высоту
-        const observer = new MutationObserver(function(mutations) {
-            mutations.forEach(function(mutation) {
-                if (mutation.attributeName === 'class') {
-                    if (menu.classList.contains('open')) {
-                        adjustMobileMenuHeight();
-                    } else if (isMobile) {
-                        // при закрытии возвращаем justify-content
-                        menu.style.justifyContent = originalJustifyContent;
-                    }
+        // Отслеживаем открытие/закрытие меню
+        const observer = new MutationObserver(function (mutations) {
+            mutations.forEach(function (mutation) {
+                if (mutation.attributeName === 'class' && !menu.classList.contains('open') && isMobile) {
+                    menu.style.justifyContent = originalJustifyContent;
                 }
             });
         });
-        observer.observe(menu, { attributes: true });
-
-        // Устанавливаем обработчики фокуса
+        observer.observe(menu, {attributes: true});
         setupSearchFocusHandlers();
     };
 
@@ -253,5 +219,5 @@ export function initHeaderMenu() {
     initBurgerMenu();
     initMobileSubmenu();
     initCloseEffects();
-    initMobileMenuBehavior(); // новая функция
+    initRightFocusMenuInput();
 }
