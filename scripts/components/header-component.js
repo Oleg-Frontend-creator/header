@@ -174,11 +174,12 @@ export function initHeaderMenu() {
         document.addEventListener("keydown", (event) => {
             if (event.key === "Escape") refreshMenu();
         });
-        // при изменении размеров окна сбрасываются все активные классы меню
-        window.addEventListener('resize', refreshMenu);
+        // Убираем глобальный обработчик resize, чтобы клавиатура не закрывала меню
+        // Вместо него ниже добавим отдельное обновление высоты
     };
-    // Дополнительная логика для мобильного меню (высота, прокрутка, justify-content)
-    const onSearchFocus = () => {
+
+    // Дополнительная логика для мобильного меню
+    const initMobileMenuBehavior = () => {
         const menu = document.querySelector('.submenu-layout');
         if (!menu) return;
 
@@ -196,7 +197,7 @@ export function initHeaderMenu() {
             menu.style.height = viewportHeight + 'px';
         }
 
-        // Функция прокрутки меню к полю ввода (с отступом 20px сверху)
+        // Функция прокрутки меню к полю ввода (отступ 20px сверху)
         function scrollMenuToInput(input) {
             const inputRect = input.getBoundingClientRect();
             const menuRect = menu.getBoundingClientRect();
@@ -211,23 +212,21 @@ export function initHeaderMenu() {
         function setupSearchFocusHandlers() {
             const searchInputs = document.querySelectorAll('.submenu-layout .search-input');
             searchInputs.forEach(input => {
-                // Предотвращаем стандартную прокрутку страницы на Android
-                input.addEventListener('touchstart', (e) => {
-                    e.preventDefault();
-                }, {passive: false});
+                input.addEventListener('focus', function() {
+                    // Обновляем высоту (клавиатура изменила viewport)
+                    adjustMobileMenuHeight();
 
-                input.addEventListener('focus', function (e) {
-                    adjustMobileMenuHeight(); // обновляем высоту с учётом клавиатуры
                     if (isMobile) {
                         menu.style.justifyContent = 'unset'; // убираем space-between
                     }
-                    // Плавно прокручиваем внутри меню
+
+                    // Через небольшую задержку прокручиваем к полю
                     setTimeout(() => {
                         scrollMenuToInput(this);
                     }, 300);
                 });
 
-                input.addEventListener('blur', function () {
+                input.addEventListener('blur', function() {
                     if (isMobile) {
                         menu.style.justifyContent = originalJustifyContent; // возвращаем
                     }
@@ -235,7 +234,7 @@ export function initHeaderMenu() {
             });
         }
 
-        // Подписка на события изменения размеров
+        // Подписка на события изменения размеров (но не закрываем меню)
         window.addEventListener('resize', adjustMobileMenuHeight);
         window.addEventListener('orientationchange', adjustMobileMenuHeight);
         if (window.visualViewport) {
@@ -245,30 +244,30 @@ export function initHeaderMenu() {
         // Начальная установка высоты
         adjustMobileMenuHeight();
 
-        // Отслеживаем открытие/закрытие меню
-        const observer = new MutationObserver(function (mutations) {
-            mutations.forEach(function (mutation) {
+        // Отслеживаем открытие меню, чтобы обновить высоту
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
                 if (mutation.attributeName === 'class') {
                     if (menu.classList.contains('open')) {
-                        adjustMobileMenuHeight(); // при открытии обновляем высоту
-                    } else {
-                        if (isMobile) {
-                            menu.style.justifyContent = originalJustifyContent; // возвращаем при закрытии
-                        }
+                        adjustMobileMenuHeight();
+                    } else if (isMobile) {
+                        // при закрытии возвращаем justify-content
+                        menu.style.justifyContent = originalJustifyContent;
                     }
                 }
             });
         });
-        observer.observe(menu, {attributes: true});
+        observer.observe(menu, { attributes: true });
 
         // Устанавливаем обработчики фокуса
         setupSearchFocusHandlers();
     };
+
     // инициализация всех обработчиков и событий
     initSubmenu();
     initSecondSubmenu();
     initBurgerMenu();
     initMobileSubmenu();
     initCloseEffects();
-    onSearchFocus();
+    initMobileMenuBehavior();
 }
