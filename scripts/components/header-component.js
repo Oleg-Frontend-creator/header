@@ -174,20 +174,23 @@ export function initHeaderMenu() {
         document.addEventListener("keydown", (event) => {
             if (event.key === "Escape") refreshMenu();
         });
-        // Убираем глобальный обработчик resize, чтобы клавиатура не закрывала меню
-        // Вместо него ниже добавим отдельное обновление высоты
     };
 
-    // === Дополнительная логика для мобильного меню ===
+    // Дополнительная логика для мобильного меню
     const initMobileMenuBehavior = () => {
         const menu = document.querySelector('.submenu-layout');
         if (!menu) return;
 
+        // Определяем платформу
+        const ua = navigator.userAgent;
+        const isAndroid = /Android/.test(ua);
+        const isIOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
         const isMobile = window.matchMedia("(max-width: 996px)").matches;
         const originalJustifyContent = 'space-between';
 
-        // Функция обновления высоты меню с учётом клавиатуры
+        // Функция обновления высоты меню с учётом клавиатуры (только для Android)
         function adjustMobileMenuHeight() {
+            if (!isAndroid) return; // на iOS высоту не меняем
             let viewportHeight;
             if (window.visualViewport) {
                 viewportHeight = window.visualViewport.height;
@@ -213,14 +216,14 @@ export function initHeaderMenu() {
             const searchInputs = document.querySelectorAll('.submenu-layout .search-input');
             searchInputs.forEach(input => {
                 input.addEventListener('focus', function() {
-                    // Обновляем высоту (клавиатура изменила viewport)
+                    // Обновляем высоту (только для Android)
                     adjustMobileMenuHeight();
 
                     if (isMobile) {
-                        menu.style.justifyContent = 'unset'; // убираем space-between
+                        menu.style.justifyContent = 'unset';
                     }
 
-                    // Через небольшую задержку прокручиваем к полю
+                    // Через небольшую задержку прокручиваем к полю (нужно и для iOS, и для Android)
                     setTimeout(() => {
                         scrollMenuToInput(this);
                     }, 300);
@@ -228,30 +231,33 @@ export function initHeaderMenu() {
 
                 input.addEventListener('blur', function() {
                     if (isMobile) {
-                        menu.style.justifyContent = originalJustifyContent; // возвращаем
+                        menu.style.justifyContent = originalJustifyContent;
                     }
                 });
             });
         }
 
-        // Подписка на события изменения размеров (но не закрываем меню)
-        window.addEventListener('resize', adjustMobileMenuHeight);
-        window.addEventListener('orientationchange', adjustMobileMenuHeight);
-        if (window.visualViewport) {
-            window.visualViewport.addEventListener('resize', adjustMobileMenuHeight);
+        // Подписка на события изменения размеров (только для Android)
+        if (isAndroid) {
+            window.addEventListener('resize', adjustMobileMenuHeight);
+            window.addEventListener('orientationchange', adjustMobileMenuHeight);
+            if (window.visualViewport) {
+                window.visualViewport.addEventListener('resize', adjustMobileMenuHeight);
+            }
         }
 
-        // Начальная установка высоты
-        adjustMobileMenuHeight();
+        // Начальная установка высоты (только для Android)
+        if (isAndroid) {
+            adjustMobileMenuHeight();
+        }
 
-        // Отслеживаем открытие меню, чтобы обновить высоту
+        // Отслеживаем открытие меню, чтобы обновить высоту (только для Android)
         const observer = new MutationObserver(function(mutations) {
             mutations.forEach(function(mutation) {
                 if (mutation.attributeName === 'class') {
                     if (menu.classList.contains('open')) {
-                        adjustMobileMenuHeight();
+                        if (isAndroid) adjustMobileMenuHeight();
                     } else if (isMobile) {
-                        // при закрытии возвращаем justify-content
                         menu.style.justifyContent = originalJustifyContent;
                     }
                 }
