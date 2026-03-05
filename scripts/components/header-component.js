@@ -177,31 +177,55 @@ export function initHeaderMenu() {
         // при изменении размеров окна сбрасываются все активные классы меню
         window.addEventListener('resize', refreshMenu);
     };
-    // инициализация всех обработчиков и событий
-    initSubmenu();
-    initSecondSubmenu();
-    initBurgerMenu();
-    initMobileSubmenu();
-    initCloseEffects();
-
-
-    // === Дополнительная логика для мобильного меню (высота, прокрутка, justify-content) ===
-    (function () {
+    // Дополнительная логика для мобильного меню (высота, прокрутка, justify-content)
+    const onSearchFocus = () => {
         const menu = document.querySelector('.submenu-layout');
         if (!menu) return;
 
         const isMobile = window.matchMedia("(max-width: 996px)").matches;
-        const originalJustifyContent = 'space-between'; // значение из CSS для мобильных
+        const originalJustifyContent = 'space-between';
+
+        // Функция обновления высоты меню с учётом клавиатуры
+        function adjustMobileMenuHeight() {
+            let viewportHeight;
+            if (window.visualViewport) {
+                viewportHeight = window.visualViewport.height;
+            } else {
+                viewportHeight = window.innerHeight;
+            }
+            menu.style.height = viewportHeight + 'px';
+        }
+
+        // Функция прокрутки меню к полю ввода (с отступом 20px сверху)
+        function scrollMenuToInput(input) {
+            const inputRect = input.getBoundingClientRect();
+            const menuRect = menu.getBoundingClientRect();
+            const targetScroll = menu.scrollTop + (inputRect.top - menuRect.top) - 20;
+            menu.scrollTo({
+                top: Math.max(0, targetScroll),
+                behavior: 'smooth'
+            });
+        }
 
         // Обработка фокуса на полях поиска
         function setupSearchFocusHandlers() {
             const searchInputs = document.querySelectorAll('.submenu-layout .search-input');
             searchInputs.forEach(input => {
-                input.addEventListener('focus', function () {
+                // Предотвращаем стандартную прокрутку страницы на Android
+                input.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                }, {passive: false});
+
+                input.addEventListener('focus', function (e) {
+                    e.preventDefault();
+                    adjustMobileMenuHeight(); // обновляем высоту с учётом клавиатуры
                     if (isMobile) {
                         menu.style.justifyContent = 'unset'; // убираем space-between
                     }
+                    // Плавно прокручиваем внутри меню
+                    scrollMenuToInput(this);
                 });
+
                 input.addEventListener('blur', function () {
                     if (isMobile) {
                         menu.style.justifyContent = originalJustifyContent; // возвращаем
@@ -210,11 +234,27 @@ export function initHeaderMenu() {
             });
         }
 
+        // Подписка на события изменения размеров
+        window.addEventListener('resize', adjustMobileMenuHeight);
+        window.addEventListener('orientationchange', adjustMobileMenuHeight);
+        if (window.visualViewport) {
+            window.visualViewport.addEventListener('resize', adjustMobileMenuHeight);
+        }
+
+        // Начальная установка высоты
+        adjustMobileMenuHeight();
+
         // Отслеживаем открытие/закрытие меню
         const observer = new MutationObserver(function (mutations) {
             mutations.forEach(function (mutation) {
-                if (mutation.attributeName === 'class' && !menu.classList.contains('open') && isMobile) {
-                    menu.style.justifyContent = originalJustifyContent;
+                if (mutation.attributeName === 'class') {
+                    if (menu.classList.contains('open')) {
+                        adjustMobileMenuHeight(); // при открытии обновляем высоту
+                    } else {
+                        if (isMobile) {
+                            menu.style.justifyContent = originalJustifyContent; // возвращаем при закрытии
+                        }
+                    }
                 }
             });
         });
@@ -222,5 +262,12 @@ export function initHeaderMenu() {
 
         // Устанавливаем обработчики фокуса
         setupSearchFocusHandlers();
-    })();
+    };
+    // инициализация всех обработчиков и событий
+    initSubmenu();
+    initSecondSubmenu();
+    initBurgerMenu();
+    initMobileSubmenu();
+    initCloseEffects();
+    onSearchFocus();
 }
