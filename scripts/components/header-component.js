@@ -178,7 +178,7 @@ export function initHeaderMenu() {
         // Вместо него ниже добавим отдельное обновление высоты
     };
 
-    // Дополнительная логика для мобильного меню
+    // === Дополнительная логика для мобильного меню ===
     const initMobileMenuBehavior = () => {
         const menu = document.querySelector('.submenu-layout');
         if (!menu) return;
@@ -269,5 +269,5 @@ export function initHeaderMenu() {
     initBurgerMenu();
     initMobileSubmenu();
     initCloseEffects();
-    initMobileMenuBehavior();
+    initMobileMenuBehavior(); // новая функция
 }
