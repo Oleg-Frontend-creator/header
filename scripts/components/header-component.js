@@ -217,13 +217,14 @@ export function initHeaderMenu() {
                 }, {passive: false});
 
                 input.addEventListener('focus', function (e) {
-                    e.preventDefault();
                     adjustMobileMenuHeight(); // обновляем высоту с учётом клавиатуры
                     if (isMobile) {
                         menu.style.justifyContent = 'unset'; // убираем space-between
                     }
                     // Плавно прокручиваем внутри меню
-                    scrollMenuToInput(this);
+                    setTimeout(() => {
+                        scrollMenuToInput(this);
+                    }, 300);
                 });
 
                 input.addEventListener('blur', function () {
