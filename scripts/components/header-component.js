@@ -174,26 +174,59 @@ export function initHeaderMenu() {
         document.addEventListener("keydown", (event) => {
             if (event.key === "Escape") refreshMenu();
         });
-        // при изменении размеров окна сбрасываются все активные классы меню
-        window.addEventListener('resize', refreshMenu);
+        // Убираем глобальный обработчик resize, чтобы клавиатура не закрывала меню
+        // Вместо него ниже добавим отдельное обновление высоты
     };
-    // обработка фокуса по нажатию на input в боковом меню
-    const initRightFocusMenuInput = () => {
+
+    // === Дополнительная логика для мобильного меню ===
+    const initMobileMenuBehavior = () => {
         const menu = document.querySelector('.submenu-layout');
         if (!menu) return;
 
         const isMobile = window.matchMedia("(max-width: 996px)").matches;
         const originalJustifyContent = 'space-between';
 
-        // Обработка фокуса на поле ввода
+        // Функция обновления высоты меню с учётом клавиатуры
+        function adjustMobileMenuHeight() {
+            let viewportHeight;
+            if (window.visualViewport) {
+                viewportHeight = window.visualViewport.height;
+            } else {
+                viewportHeight = window.innerHeight;
+            }
+            menu.style.height = viewportHeight + 'px';
+        }
+
+        // Функция прокрутки меню к полю ввода (отступ 200px сверху)
+        function scrollMenuToInput(input) {
+            const inputRect = input.getBoundingClientRect();
+            const menuRect = menu.getBoundingClientRect();
+            const targetScroll = menu.scrollTop + (inputRect.top - menuRect.top) - 200;
+            menu.scrollTo({
+                top: Math.max(0, targetScroll),
+                behavior: 'smooth'
+            });
+        }
+
+        // Обработка фокуса на полях поиска
         function setupSearchFocusHandlers() {
             const searchInputs = document.querySelectorAll('.submenu-layout .search-input');
             searchInputs.forEach(input => {
-                input.addEventListener('focus', () => {
-                    if (isMobile)
-                        menu.style.justifyContent = 'unset';
+                input.addEventListener('focus', function() {
+                    // Обновляем высоту (клавиатура изменила viewport)
+                    adjustMobileMenuHeight();
+
+                    if (isMobile) {
+                        menu.style.justifyContent = 'unset'; // убираем space-between
+                    }
+
+                    // Через небольшую задержку прокручиваем к полю
+                    setTimeout(() => {
+                        scrollMenuToInput(this);
+                    }, 300);
                 });
-                input.addEventListener('blur', function () {
+
+                input.addEventListener('blur', function() {
                     if (isMobile) {
                         menu.style.justifyContent = originalJustifyContent; // возвращаем
                     }
@@ -201,15 +234,32 @@ export function initHeaderMenu() {
             });
         }
 
-        // Отслеживаем открытие/закрытие меню
-        const observer = new MutationObserver(function (mutations) {
-            mutations.forEach(function (mutation) {
-                if (mutation.attributeName === 'class' && !menu.classList.contains('open') && isMobile) {
-                    menu.style.justifyContent = originalJustifyContent;
+        // Подписка на события изменения размеров (но не закрываем меню)
+        window.addEventListener('resize', adjustMobileMenuHeight);
+        window.addEventListener('orientationchange', adjustMobileMenuHeight);
+        if (window.visualViewport) {
+            window.visualViewport.addEventListener('resize', adjustMobileMenuHeight);
+        }
+
+        // Начальная установка высоты
+        adjustMobileMenuHeight();
+
+        // Отслеживаем открытие меню, чтобы обновить высоту
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                if (mutation.attributeName === 'class') {
+                    if (menu.classList.contains('open')) {
+                        adjustMobileMenuHeight();
+                    } else if (isMobile) {
+                        // при закрытии возвращаем justify-content
+                        menu.style.justifyContent = originalJustifyContent;
+                    }
                 }
             });
         });
-        observer.observe(menu, {attributes: true});
+        observer.observe(menu, { attributes: true });
+
+        // Устанавливаем обработчики фокуса
         setupSearchFocusHandlers();
     };
 
@@ -219,5 +269,5 @@ export function initHeaderMenu() {
     initBurgerMenu();
     initMobileSubmenu();
     initCloseEffects();
-    initRightFocusMenuInput();
+    initMobileMenuBehavior(); // новая функция
 }
