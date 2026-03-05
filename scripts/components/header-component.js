@@ -197,17 +197,6 @@ export function initHeaderMenu() {
             menu.style.height = viewportHeight + 'px';
         }
 
-        // Функция прокрутки меню к полю ввода (отступ 20px сверху)
-        function scrollMenuToInput(input) {
-            const inputRect = input.getBoundingClientRect();
-            const menuRect = menu.getBoundingClientRect();
-            const targetScroll = menu.scrollTop + (inputRect.top - menuRect.top) - 20;
-            menu.scrollTo({
-                top: Math.max(0, targetScroll),
-                behavior: 'smooth'
-            });
-        }
-
         // Обработка фокуса на полях поиска
         function setupSearchFocusHandlers() {
             const searchInputs = document.querySelectorAll('.submenu-layout .search-input');
@@ -219,11 +208,6 @@ export function initHeaderMenu() {
                     if (isMobile) {
                         menu.style.justifyContent = 'unset'; // убираем space-between
                     }
-
-                    // Через небольшую задержку прокручиваем к полю
-                    setTimeout(() => {
-                        scrollMenuToInput(this);
-                    }, 300);
                 });
 
                 input.addEventListener('blur', function() {

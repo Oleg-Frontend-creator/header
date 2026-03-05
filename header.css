@@ -176,7 +176,7 @@ body {
 
 /*область, которая выдвигается слева на декстопе и справа на мобильных устройствах*/
 .submenu-layout {
-    height: 100%;
+    height: 100svh;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
     background-color: #E9E9E9;
